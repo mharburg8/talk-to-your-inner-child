@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  consents      ConsentRecord[]
+  personas      Persona[]
+  sessions      Session[]
+  safetyEvents  SafetyEvent[]
+
+  @@index([email])
+}
+
+model ConsentRecord {
+  id              String   @id @default(uuid())
+  userId          String
+  consentVersion  String   // e.g., "v1_audio_2026_01"
+  scopes          Json     // ["audio_processing", "voice_synthesis", "storage_retention"]
+  acceptedAt      DateTime @default(now())
+  ipAddress       String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, consentVersion])
+}
+
+model Persona {
+  id             String    @id @default(uuid())
+  userId         String
+  label          String
+  ageNumber      Int
+  tonePreset     String    // gentle | neutral | playful | custom
+  customToneText String?
+  contextPrompt  String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media     PersonaMedia[]
+  sessions  Session[]
+
+  @@index([userId])
+}
+
+enum MediaType {
+  voice_reference
+  image_reference
+  video_reference
+}
+
+model PersonaMedia {
+  id              String    @id @default(uuid())
+  personaId       String
+  mediaType       MediaType
+  storageKey      String
+  mimeType        String
+  durationSeconds Float?
+  metadata        Json?     // Additional metadata like dimensions, etc.
+  createdAt       DateTime  @default(now())
+
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+
+  @@index([personaId, mediaType])
+}
+
+model Session {
+  id              String    @id @default(uuid())
+  userId          String
+  personaId       String
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  title           String?
+  toneSnapshot    String    // Store tone at session creation
+  contextSnapshot String    // Store context at session creation
+  deletedAt       DateTime?
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  persona   Persona           @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  messages  SessionMessage[]
+  artifacts SessionArtifact[]
+  safetyEvents SafetyEvent[]
+
+  @@index([userId])
+  @@index([personaId])
+}
+
+enum MessageRole {
+  system
+  user
+  assistant
+}
+
+model SessionMessage {
+  id              String      @id @default(uuid())
+  sessionId       String
+  role            MessageRole
+  text            String      @db.Text
+  clientTimestamp BigInt?
+  createdAt       DateTime    @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+enum ArtifactType {
+  user_audio
+  assistant_audio
+}
+
+model SessionArtifact {
+  id              String       @id @default(uuid())
+  sessionId       String
+  artifactType    ArtifactType
+  storageKey      String
+  mimeType        String
+  durationSeconds Float?
+  clientTimestamp BigInt?
+  createdAt       DateTime     @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model SafetyEvent {
+  id         String   @id @default(uuid())
+  sessionId  String
+  userId     String
+  category   String   // self_harm | suicide | crisis
+  snippet    String   @db.Text
+  detectedAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+}
