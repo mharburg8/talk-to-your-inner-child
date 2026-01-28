@@ -1,7 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 export function generateStorageKey(userId: string, type: string, fileName: string): string {
@@ -28,5 +29,5 @@ export function formatDate(date: Date): string {
 }
 
 export async function bufferToBlob(buffer: Buffer, mimeType: string): Promise<Blob> {
-  return new Blob([buffer], { type: mimeType });
+  return new Blob([buffer as any], { type: mimeType });
 }

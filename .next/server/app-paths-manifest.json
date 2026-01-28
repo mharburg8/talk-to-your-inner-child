@@ -1,0 +1,19 @@
+{
+  "/_not-found": "app/_not-found.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/auth/signup/route": "app/api/auth/signup/route.js",
+  "/api/onboarding/accept-consent/route": "app/api/onboarding/accept-consent/route.js",
+  "/api/onboarding/status/route": "app/api/onboarding/status/route.js",
+  "/api/personas/[id]/media/confirm/route": "app/api/personas/[id]/media/confirm/route.js",
+  "/api/personas/[id]/route": "app/api/personas/[id]/route.js",
+  "/api/personas/[id]/media/upload-url/route": "app/api/personas/[id]/media/upload-url/route.js",
+  "/api/personas/route": "app/api/personas/route.js",
+  "/api/sessions/[id]/route": "app/api/sessions/[id]/route.js",
+  "/api/sessions/[id]/turn/route": "app/api/sessions/[id]/turn/route.js",
+  "/api/sessions/route": "app/api/sessions/route.js",
+  "/auth/signup/page": "app/auth/signup/page.js",
+  "/page": "app/page.js",
+  "/sessions/[id]/page": "app/sessions/[id]/page.js",
+  "/auth/signin/page": "app/auth/signin/page.js",
+  "/personas/[id]/page": "app/personas/[id]/page.js"
+}

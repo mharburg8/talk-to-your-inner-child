@@ -16,7 +16,7 @@ class OpenAISTTProvider implements STTProvider {
 
   async transcribeAudio(audioBuffer: Buffer, mimeType: string): Promise<string> {
     const formData = new FormData();
-    const blob = new Blob([audioBuffer], { type: mimeType });
+    const blob = new Blob([audioBuffer as any], { type: mimeType });
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
 
@@ -51,7 +51,7 @@ class DeepgramSTTProvider implements STTProvider {
         'Authorization': `Token ${this.apiKey}`,
         'Content-Type': mimeType,
       },
-      body: audioBuffer,
+      body: audioBuffer as any,
     });
 
     if (!response.ok) {
